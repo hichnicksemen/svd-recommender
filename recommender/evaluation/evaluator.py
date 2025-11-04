@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 from ..core.base import BaseRecommender
 from ..core.data import InteractionDataset
-from . import metrics
 
 
 class Evaluator:
@@ -38,21 +37,23 @@ class Evaluator:
         self.k_values = k_values or [5, 10, 20]
         
         # Map metric names to functions
+        # Import metrics module to avoid name conflict with parameter
+        from . import metrics as metrics_module
         self.metric_funcs = {
-            'precision': metrics.precision_at_k,
-            'recall': metrics.recall_at_k,
-            'f1': metrics.f1_score_at_k,
-            'ndcg': metrics.ndcg_at_k,
-            'map': metrics.map_at_k,
-            'mrr': metrics.mrr_at_k,
-            'hit_rate': metrics.hit_rate_at_k,
-            'coverage': metrics.coverage,
-            'diversity': metrics.diversity,
-            'novelty': metrics.novelty,
-            'rmse': metrics.rmse,
-            'mae': metrics.mae,
-            'mse': metrics.mse,
-            'r_squared': metrics.r_squared
+            'precision': metrics_module.precision_at_k,
+            'recall': metrics_module.recall_at_k,
+            'f1': metrics_module.f1_score_at_k,
+            'ndcg': metrics_module.ndcg_at_k,
+            'map': metrics_module.map_at_k,
+            'mrr': metrics_module.mrr_at_k,
+            'hit_rate': metrics_module.hit_rate_at_k,
+            'coverage': metrics_module.coverage,
+            'diversity': metrics_module.diversity,
+            'novelty': metrics_module.novelty,
+            'rmse': metrics_module.rmse,
+            'mae': metrics_module.mae,
+            'mse': metrics_module.mse,
+            'r_squared': metrics_module.r_squared
         }
     
     def evaluate_ranking(
@@ -123,20 +124,23 @@ class Evaluator:
                 except Exception as e:
                     print(f"Warning: Could not compute {metric_name}@{k}: {e}")
         
+        # Import metrics module
+        from . import metrics as metrics_module
+        
         # Compute coverage
         if 'coverage' in self.metric_names:
-            cov = metrics.coverage(recommended_items, test_data.n_items)
+            cov = metrics_module.coverage(recommended_items, test_data.n_items)
             results['coverage'] = cov
         
         # Compute diversity
         if 'diversity' in self.metric_names:
-            div = metrics.diversity(recommended_items)
+            div = metrics_module.diversity(recommended_items)
             results['diversity'] = div
         
         # Compute novelty
         if 'novelty' in self.metric_names and train_data is not None:
             item_popularity = train_data.data['item_id'].value_counts().to_dict()
-            nov = metrics.novelty(recommended_items, item_popularity, train_data.n_users)
+            nov = metrics_module.novelty(recommended_items, item_popularity, train_data.n_users)
             results['novelty'] = nov
         
         return results
