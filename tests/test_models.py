@@ -25,7 +25,7 @@ class TestEASERecommender(unittest.TestCase):
             n_items=30,
             n_interactions=500,
             implicit=True,
-            random_state=42
+            seed=42
         )
         self.dataset = InteractionDataset(self.df, implicit=True)
         self.train, self.test = self.dataset.split(test_size=0.2, random_state=42)
@@ -34,7 +34,7 @@ class TestEASERecommender(unittest.TestCase):
         """Test model initialization."""
         model = EASERecommender(l2_reg=100.0)
         self.assertFalse(model.is_fitted)
-        self.assertEqual(model.config['l2_reg'], 100.0)
+        self.assertEqual(model.l2_reg, 100.0)
     
     def test_fit(self):
         """Test model training."""
@@ -95,7 +95,7 @@ class TestEASERecommender(unittest.TestCase):
             loaded_model.load(temp_path)
             
             self.assertTrue(loaded_model.is_fitted)
-            self.assertEqual(loaded_model.config['l2_reg'], 100.0)
+            self.assertEqual(loaded_model.l2_reg, 100.0)
             
             recs_after = loaded_model.recommend(user_ids, k=5)
             
@@ -116,7 +116,7 @@ class TestSLIMRecommender(unittest.TestCase):
             n_items=25,
             n_interactions=400,
             implicit=True,
-            random_state=42
+            seed=42
         )
         self.dataset = InteractionDataset(self.df, implicit=True)
     
@@ -157,7 +157,7 @@ class TestSVDRecommender(unittest.TestCase):
             n_interactions=500,
             rating_range=(1, 5),
             implicit=False,
-            random_state=42
+            seed=42
         )
         self.dataset = InteractionDataset(self.df, implicit=False)
         self.train, self.test = self.dataset.split(test_size=0.2, random_state=42)
@@ -198,7 +198,7 @@ class TestSVDPlusPlusRecommender(unittest.TestCase):
             n_interactions=400,
             rating_range=(1, 5),
             implicit=False,
-            random_state=42
+            seed=42
         )
         self.dataset = InteractionDataset(self.df, implicit=False)
         self.train, self.test = self.dataset.split(test_size=0.2, random_state=42)
@@ -233,7 +233,7 @@ class TestALSRecommender(unittest.TestCase):
             n_items=30,
             n_interactions=500,
             implicit=True,
-            random_state=42
+            seed=42
         )
         self.dataset = InteractionDataset(self.df, implicit=True)
         self.train, self.test = self.dataset.split(test_size=0.2, random_state=42)
@@ -279,7 +279,7 @@ class TestEdgeCases(unittest.TestCase):
             n_items=10,
             n_interactions=50,
             implicit=True,
-            random_state=42
+            seed=42
         )
         dataset = InteractionDataset(df, implicit=True)
         
@@ -300,7 +300,7 @@ class TestEdgeCases(unittest.TestCase):
             n_items=20,
             n_interactions=200,
             implicit=True,
-            random_state=42
+            seed=42
         )
         dataset = InteractionDataset(df, implicit=True)
         
@@ -319,7 +319,7 @@ class TestEdgeCases(unittest.TestCase):
             n_items=20,
             n_interactions=200,
             implicit=True,
-            random_state=42
+            seed=42
         )
         dataset = InteractionDataset(df, implicit=True)
         

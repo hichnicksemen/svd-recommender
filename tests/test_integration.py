@@ -42,7 +42,7 @@ class TestCompleteWorkflow(unittest.TestCase):
         self.assertGreater(dataset.n_items, 0)
         
         # 3. Split data
-        train, test = dataset.split(test_size=0.2, strategy='random', seed=42)
+        train, test = dataset.split(test_size=0.2, strategy='random', random_state=42)
         
         self.assertGreater(len(train), 0)
         self.assertGreater(len(test), 0)
@@ -120,7 +120,7 @@ class TestCompleteWorkflow(unittest.TestCase):
         )
         
         # 3. Split data
-        train, test = dataset.split(test_size=0.2, strategy='random', seed=42)
+        train, test = dataset.split(test_size=0.2, strategy='random', random_state=42)
         
         # 4. Train model
         model = SVDRecommender(n_components=10)
@@ -144,7 +144,7 @@ class TestCompleteWorkflow(unittest.TestCase):
         results = evaluator.evaluate(
             model,
             test,
-            task='rating',
+            task='rating_prediction',
             train_data=train
         )
         
@@ -167,7 +167,7 @@ class TestModelComparison(unittest.TestCase):
         )
         
         dataset = InteractionDataset(df, implicit=True, min_user_interactions=5)
-        train, test = dataset.split(test_size=0.2, seed=42)
+        train, test = dataset.split(test_size=0.2, random_state=42)
         
         # Models to compare
         models = {
