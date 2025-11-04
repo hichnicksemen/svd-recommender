@@ -30,6 +30,14 @@ QUICK_PUBLISH.md
 TESTING.md
 GITHUB_ACTIONS_SETUP.md
 CHEATSHEET.md
+WIKI_QUICKSTART.md
+WIKI_SYNC.md
+AUTOMATION.md
+sync_wiki.sh
+sync-wiki.yml
+# Wiki sync temporary directories
+wiki-repo/
+wiki/
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.

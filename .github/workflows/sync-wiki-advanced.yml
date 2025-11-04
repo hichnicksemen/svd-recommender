@@ -1,0 +1,192 @@
+name: Sync Docs to Wiki (Advanced)
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'docs/**'
+      - '.github/workflows/sync-wiki-advanced.yml'
+  workflow_dispatch:
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Checkout Wiki
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Sync and transform docs
+        run: |
+          python3 << 'EOF'
+          import os
+          import re
+          import shutil
+          from pathlib import Path
+          
+          def transform_filename(filename):
+              """
+              Преобразует имена файлов для Wiki:
+              01_введение.md -> Введение.md
+              02_подготовка_данных.md -> Подготовка-данных.md
+              README.md -> Home.md (если в корне docs/)
+              """
+              if filename == 'README.md':
+                  return 'Home.md'
+              
+              # Удаляем числовые префиксы (01_, 02_ и т.д.)
+              name = re.sub(r'^\d+[_-]', '', filename)
+              
+              # Заменяем подчеркивания на дефисы (для красивых URL)
+              name = name.replace('_', '-')
+              
+              # Делаем первую букву заглавной
+              if name:
+                  name = name[0].upper() + name[1:]
+              
+              return name
+          
+          def process_markdown(content, source_path):
+              """
+              Обрабатывает содержимое markdown:
+              - Исправляет ссылки на другие файлы
+              - Добавляет метаданные
+              """
+              # Исправляем внутренние ссылки
+              # [текст](01_введение.md) -> [текст](Введение)
+              def fix_link(match):
+                  text = match.group(1)
+                  link = match.group(2)
+                  
+                  if link.endswith('.md'):
+                      # Преобразуем имя файла
+                      new_name = transform_filename(Path(link).name)
+                      new_name = new_name[:-3]  # Убираем .md для wiki ссылок
+                      return f'[{text}]({new_name})'
+                  return match.group(0)
+              
+              content = re.sub(r'\[([^\]]+)\]\(([^)]+\.md)\)', fix_link, content)
+              
+              return content
+          
+          # Очищаем wiki (кроме .git)
+          wiki_path = Path('wiki')
+          for item in wiki_path.iterdir():
+              if item.name != '.git':
+                  if item.is_dir():
+                      shutil.rmtree(item)
+                  else:
+                      item.unlink()
+          
+          # Обрабатываем docs/ru
+          docs_path = Path('docs/ru')
+          if docs_path.exists():
+              for md_file in sorted(docs_path.glob('*.md')):
+                  # Читаем содержимое
+                  content = md_file.read_text(encoding='utf-8')
+                  
+                  # Обрабатываем содержимое
+                  content = process_markdown(content, md_file)
+                  
+                  # Преобразуем имя файла
+                  new_name = transform_filename(md_file.name)
+                  
+                  # Записываем в wiki
+                  output_file = wiki_path / new_name
+                  output_file.write_text(content, encoding='utf-8')
+                  
+                  print(f'✓ {md_file.name} -> {new_name}')
+          
+          # Копируем README как Home.md если нет
+          readme = Path('README.md')
+          home = wiki_path / 'Home.md'
+          if readme.exists() and not home.exists():
+              content = readme.read_text(encoding='utf-8')
+              home.write_text(content, encoding='utf-8')
+              print('✓ README.md -> Home.md')
+          
+          print('\n✅ Синхронизация завершена')
+          EOF
+      
+      - name: Create sidebar
+        run: |
+          python3 << 'EOF'
+          from pathlib import Path
+          import re
+          
+          wiki_path = Path('wiki')
+          
+          # Собираем все файлы кроме Home.md и _Sidebar.md
+          md_files = []
+          for f in sorted(wiki_path.glob('*.md')):
+              if f.name not in ['Home.md', '_Sidebar.md']:
+                  # Имя без расширения
+                  name = f.stem
+                  # Заменяем дефисы на пробелы для отображения
+                  display_name = name.replace('-', ' ')
+                  md_files.append((name, display_name))
+          
+          # Создаем сайдбар
+          sidebar_content = "# 📚 Документация\n\n"
+          sidebar_content += "## Содержание\n\n"
+          
+          for name, display in md_files:
+              sidebar_content += f"- [{display}]({name})\n"
+          
+          sidebar_content += "\n---\n\n"
+          sidebar_content += "## Ссылки\n\n"
+          sidebar_content += "- [🏠 Главная страница](Home)\n"
+          sidebar_content += "- [📦 PyPI](https://pypi.org/project/sota-recommender/)\n"
+          sidebar_content += "- [💻 GitHub](https://github.com/hichnicksemen/svd-recommender)\n"
+          
+          sidebar_file = wiki_path / '_Sidebar.md'
+          sidebar_file.write_text(sidebar_content, encoding='utf-8')
+          
+          print('✓ Создан _Sidebar.md')
+          EOF
+      
+      - name: Commit and push
+        working-directory: wiki
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add .
+          
+          if git diff --staged --quiet; then
+            echo "📝 Нет изменений для синхронизации"
+            exit 0
+          fi
+          
+          git commit -m "🔄 Auto-sync from docs/ (commit ${{ github.sha }})"
+          git push
+          
+          echo "✅ Wiki обновлена!"
+      
+      - name: Summary
+        run: |
+          echo "### ✅ Wiki успешно синхронизирована" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📚 **Просмотреть Wiki:** https://github.com/${{ github.repository }}/wiki" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Синхронизированные файлы:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          find wiki -name "*.md" -not -path "*/\.git/*" | sort | while read file; do
+            echo "- \`$(basename $file)\`" >> $GITHUB_STEP_SUMMARY
+          done
+
