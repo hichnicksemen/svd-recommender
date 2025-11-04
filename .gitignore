@@ -22,7 +22,11 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-
+.pypirc
+PUBLISH.md
+QUICK_PUBLISH.md
+TESTING.md
+GITHUB_ACTIONS_SETUP.md
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
