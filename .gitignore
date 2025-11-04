@@ -35,6 +35,8 @@ WIKI_SYNC.md
 AUTOMATION.md
 sync_wiki.sh
 sync-wiki.yml
+WIKI_SETUP.md
+DOCS_INDEX.md
 # Wiki sync temporary directories
 wiki-repo/
 wiki/

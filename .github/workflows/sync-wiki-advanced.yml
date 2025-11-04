@@ -20,11 +20,38 @@ jobs:
           fetch-depth: 0
       
       - name: Checkout Wiki
+        id: checkout_wiki
+        continue-on-error: true
         uses: actions/checkout@v4
         with:
           repository: ${{ github.repository }}.wiki
           path: wiki
           token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Check if Wiki exists
+        if: steps.checkout_wiki.outcome == 'failure'
+        run: |
+          echo "::error::❌ Wiki репозиторий не найден!"
+          echo ""
+          echo "📚 Чтобы включить синхронизацию Wiki, выполните следующие шаги:"
+          echo ""
+          echo "1️⃣  Включите Wiki на GitHub:"
+          echo "   https://github.com/${{ github.repository }}/settings"
+          echo "   Features → ✅ Wikis → Save changes"
+          echo ""
+          echo "2️⃣  Создайте первую страницу:"
+          echo "   https://github.com/${{ github.repository }}/wiki"
+          echo "   Нажмите 'Create the first page'"
+          echo "   Title: Home"
+          echo "   Content: (любой текст)"
+          echo "   Нажмите 'Save Page'"
+          echo ""
+          echo "3️⃣  Запустите этот workflow снова:"
+          echo "   https://github.com/${{ github.repository }}/actions/workflows/sync-wiki-advanced.yml"
+          echo "   Нажмите 'Run workflow'"
+          echo ""
+          echo "Подробности: WIKI_QUICKSTART.md"
+          exit 1
       
       - name: Setup Python
         uses: actions/setup-python@v4
