@@ -12,6 +12,7 @@ wheel = "*"
 twine = "*"
 matplotlib = "*"
 seaborn = "*"
+pytest = "*"
 
 [dev-packages]
 ipykernel = "*"
