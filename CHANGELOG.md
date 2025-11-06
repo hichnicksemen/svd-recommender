@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.3] - 2025-11-06
+
+Что было исправлено:
+Добавлен импорт TYPE_CHECKING из модуля typing
+Добавлен условный импорт DataLoader для type checking (строка 10-11)
+Сохранён импорт для runtime в блоке try/except (строка 16)
+Теперь DataLoader доступен:
+Для type checking (даже если PyTorch не установлен)
+Для runtime (когда PyTorch установлен)
+
 ## [0.3.1] - 2025-11-04
 
 Фикс версии релиза для pypi
