@@ -17,6 +17,8 @@ try:
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
+    # Define a dummy DataLoader for type hints when PyTorch is not available
+    DataLoader = Any  # type: ignore
 
 
 class Trainer:
@@ -89,7 +91,7 @@ class Trainer:
     
     def train_epoch(
         self,
-        train_loader: DataLoader,
+        train_loader: 'DataLoader',
         epoch: int
     ) -> float:
         """
@@ -147,7 +149,7 @@ class Trainer:
     
     def validate_epoch(
         self,
-        val_loader: DataLoader
+        val_loader: 'DataLoader'
     ) -> float:
         """
         Validate for one epoch.
@@ -198,8 +200,8 @@ class Trainer:
     
     def fit(
         self,
-        train_loader: DataLoader,
-        val_loader: Optional[DataLoader] = None,
+        train_loader: 'DataLoader',
+        val_loader: Optional['DataLoader'] = None,
         epochs: int = 100,
         callbacks: Optional[List[Callable]] = None
     ) -> Dict[str, List[float]]:
@@ -318,7 +320,7 @@ class Trainer:
             epoch = checkpoint.get('epoch', 'unknown')
             self.logger.info(f"Checkpoint loaded from epoch {epoch}")
     
-    def predict(self, data_loader: DataLoader) -> np.ndarray:
+    def predict(self, data_loader: 'DataLoader') -> np.ndarray:
         """
         Generate predictions using the trained model.
         
