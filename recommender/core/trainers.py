@@ -1,11 +1,14 @@
 """
 Training utilities for deep learning based recommenders.
 """
-from typing import Optional, Dict, Any, Callable, List
+from typing import Optional, Dict, Any, Callable, List, TYPE_CHECKING
 import time
 import numpy as np
 from pathlib import Path
 import logging
+
+if TYPE_CHECKING:
+    from torch.utils.data import DataLoader
 
 try:
     import torch
