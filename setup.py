@@ -44,7 +44,7 @@ extras_require['all'] = list(set(sum(extras_require.values(), [])))
 
 setup(
     name='sota-recommender',
-    version='0.3.3',
+    version='0.3.4',
     packages=find_packages(),
     install_requires=install_requires,
     extras_require=extras_require,

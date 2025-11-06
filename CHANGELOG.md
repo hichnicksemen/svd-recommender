@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.4] - 2025-11-06
+
+Добавлен fallback для DataLoader: если PyTorch недоступен, DataLoader определяется как Any, чтобы имя всегда существовало.
+Использованы строковые аннотации: все type hints с DataLoader теперь используют строки ('DataLoader' вместо DataLoader), чтобы Python не разрешал это имя во время выполнения.
+
 ## [0.3.3] - 2025-11-06
 
 Что было исправлено:
